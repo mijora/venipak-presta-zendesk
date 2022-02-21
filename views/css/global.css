@@ -226,13 +226,12 @@
   display: block;
   text-align: center;
   color: #FFFFFF;
-  position: absolute;
   font-size: 10px;
-  left: -15px;
-  bottom: 20px;
   cursor: pointer;
   border: 0.5px solid #373737;
   background-color: white;
+  display: inline-block;
+  margin-top: 2px;
 }
 
 #filter-container input[type="checkbox"]:checked + label::before {

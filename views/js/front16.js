@@ -11,7 +11,7 @@ $( document ).ready(function() {
     if(typeof page_name != "undefined" && page_name == 'order-opc')
     {
         $( document ).ajaxComplete(function( event, xhr, settings ) {
-            if ( settings.data.includes('updateCarrierAndGetPayments')) {
+            if ( typeof settings.data !== 'undefined' && settings.data.includes('updateCarrierAndGetPayments')) {
                 loadCarrierContent();
             }
         });
@@ -35,10 +35,10 @@ $( document ).ready(function() {
 
 function loadCarrierContent() {
     var selectedCarrier = $('[id^="delivery_option"]:checked');
-    if(selectedCarrier.parents('.delivery_option').find('.venipak-service-content').length != 0)
+    if(selectedCarrier.parents('.shipping-delivery-item-opc').find('.venipak-service-content').length != 0)
         return;
     $('.venipak-service-content').remove();
-    var contentHolder = selectedCarrier.parents('.delivery_option').find('.delivery_option_logo + td');
+    var contentHolder = selectedCarrier.closest('.shipping-delivery-item-opc').find('.shipping-desc-opc');
     $.ajax({
         type: "POST",
         url: mjvp_carriers_controller_url,
@@ -46,8 +46,8 @@ function loadCarrierContent() {
         data: {
             'id_carrier' : selectedCarrier.val()
         },
-        success: function (res) {
-            if(typeof res.carrier_content != 'undefined' && typeof res.mjvp_map_template != 'undefined' && res.carrier_content)
+        success: function (res) { 
+            if(res && typeof res.carrier_content != 'undefined' && typeof res.mjvp_map_template != 'undefined' && res.carrier_content)
             {
                 mjvp_map_template = res.mjvp_map_template;
                 contentHolder.append(`<div class="venipak-service-content">${res.carrier_content}</div>`);
