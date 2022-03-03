@@ -15,6 +15,65 @@ $( document ).ready(function() {
                 loadCarrierContent();
             }
         });
+                if($('.fox-payment').length != 0)
+        {
+            $('#HOOK_PAYMENT').on('click', function(event) {
+                event.preventDefault();
+                ajaxData = {};
+                ajaxData.carrier_id = $("input[name^='delivery_option[']:checked").val().split(',')[0];
+                ajaxData.checkTerminal = 1;
+                var href = $(event.target).attr('href');
+                if(!href)
+                    href = $(event.target).closest('a').attr('href');
+                $.ajax({
+                    url: mjvp_front_controller_url,
+                    data: ajaxData,
+                    type: "POST",
+                    dataType: "json",
+                    success: function (res) {
+                        if(typeof res.error != 'undefined')
+                        {
+                            alert(res.error);
+                        }
+                        else
+                        {
+                            document.location = href;
+                        }
+                    }
+                    }
+                );
+            });
+        }
+        $( document ).ajaxComplete(function( event, xhr, settings ) {
+            if ( typeof settings.data !== 'undefined' && settings.data.includes('updateTOSStatusAndGetPayments')) {
+                $('#HOOK_PAYMENT').on('click', function(event) {
+                    event.preventDefault();
+                    ajaxData = {};
+                    ajaxData.carrier_id = $("input[name^='delivery_option[']:checked").val().split(',')[0];
+                    ajaxData.checkTerminal = 1;
+                    var href = $(event.target).attr('href');
+                    if(!href)
+                        href = $(event.target).closest('a').attr('href');
+                    $.ajax({
+                        url: mjvp_front_controller_url,
+                        data: ajaxData,
+                        type: "POST",
+                        dataType: "json",
+                        success: function (res) {
+                            if(typeof res.error != 'undefined')
+                            {
+                                alert(res.error);
+                            }
+                            else
+                            {
+                                document.location = href;
+                            }
+                        }
+                        }
+                    );
+                });
+            }
+        });
     }
     else
     {
@@ -54,7 +113,7 @@ function loadCarrierContent() {
                 venipak_custom_modal();
                 filterEventListener();
                 addExtraCarrierInfoEventListener();
-                addTerminalValidateListener();
+                //addTerminalValidateListener();
             }
         },
     });
