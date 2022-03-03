@@ -10,7 +10,7 @@ class MijoraVenipakFrontModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
-        if(Tools::isSubmit('carrier_id') || Tools::getValue('selected_terminal'))
+        if ((Tools::isSubmit('carrier_id') || Tools::getValue('selected_terminal')) && !Tools::isSubmit('checkTerminal')) {
         {
             $carrierId = Tools::getValue('carrier_id');
             if(!$carrierId)
@@ -103,6 +103,32 @@ class MijoraVenipakFrontModuleFrontController extends ModuleFrontController
             $filter_keys = Tools::getValue('filter_keys');
             $filtered_terminals = $this->module->getFilteredTerminals($filter_keys);
             die(json_encode(['mjvp_terminals' => $filtered_terminals]));
+        }
+        elseif (Tools::isSubmit('carrier_id') && Tools::isSubmit('checkTerminal')) 
+        {
+            $carrierId = Tools::getValue('carrier_id');
+            if (!$carrierId)
+                $carrierId = $this->context->cart->id_carrier;
+
+            $ps_carrier = new Carrier((int)$carrierId);
+
+            if (!Validate::isLoadedObject($ps_carrier)) {
+                die(json_encode('FAILED TO GET CARRIER'));
+            }
+
+            $pickups_reference = Configuration::get(MijoraVenipak::$_carriers['pickup']['reference_name']);
+
+            if ($ps_carrier->id_reference == $pickups_reference) {
+                $cDb = $this->module->getModuleService('MjvpDb');
+                $orderData = $cDb->getOrderValue('terminal_id', array('id_cart' => $this->context->cart->id));
+                if (!$orderData) {
+                    die(json_encode(['error' => 'Nepasirinktas Venipak paštomatas']));
+                } else {
+                    die(json_encode(['success' => 'Terminal selected']));
+                }
+            } else {
+                die(json_encode(['success' => 'Not terminal carrier']));
+            }
         }
     }
 }
