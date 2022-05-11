@@ -224,13 +224,12 @@ var TerminalMappingMjvp = /*#__PURE__*/function () {
                lng: terminal.lng
              };
              terminal['identifier'] = 'venipak';
+             terminal['name'] = terminal['name'].split(', ').slice(1).join(', ');
              terminals.push(terminal);
            }
         });
 
           _this2.setTerminals(terminals);
-          // if(!_this2.terminals_cache)
-          //   _this2.terminals_cache = terminals;
           _this2.dom.renderTerminalList(_this2.map.locations);
 
           console.info(_this2.prefix + 'Terminals loaded');
@@ -238,7 +237,6 @@ var TerminalMappingMjvp = /*#__PURE__*/function () {
           _this2.dom.removeOverlay();
 
           _this2.publish('tmjs-ready', _this2);
-        // });
       });
     }
   }, {
@@ -866,7 +864,7 @@ var DOMManipulator = /*#__PURE__*/function () {
         }
 
         var selectBtnHidden = _this3.hideSelectBtn ? 'tmjs-hidden' : '';
-        var template = "<span class=\"tmjs-terminal-name\">".concat(loc.name, ", ").concat(loc.address);
+        var template = `<span class="tmjs-terminal-name">${loc.display_name}, ${loc.address}`;
 
         if (typeof loc.distance != 'undefined' && loc.distance !== null) {
           // template += "<span class=\"tmjs-terminal-distance\"><img src=\"".concat(_this3.TMJS.imagePath, "gps.svg\" width=\"13\">").concat(loc.distance.toFixed(2), " Km.</span>");
@@ -1465,7 +1463,26 @@ var Map = /*#__PURE__*/function () {
         loc.distance = _this4.calculateDistance(origin, loc.coords);
       });
       this.locations.sort(this.sortByDistance);
-      return this.locations;
+      let cities = [];
+      this.locations.forEach((val, i) => {
+         if(!cities.includes(val.city)) {
+            cities.push(val.city)
+          }
+        }
+      );
+
+      let relocated = [];
+      cities.forEach((city, i) => {
+        this.locations.forEach((val, i) => {
+          if(city == val.city) {
+            relocated.push(val);
+           }
+         });
+       }
+     );
+
+    this.locations = relocated;
+    return this.locations;
     }
   }, {
     key: "deg2rad",
